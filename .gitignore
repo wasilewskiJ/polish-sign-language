@@ -1,0 +1,20 @@
+src/__pycache__*
+
+# Data directories (too large for git)
+data/raw/
+data/augmented/
+data/test/
+data/train/
+data/val/
+
+# Results
+results_cv/*.png
+results_cv/*.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
