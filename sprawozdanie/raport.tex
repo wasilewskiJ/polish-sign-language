@@ -1,4 +1,3 @@
-% Raport naukowy - Klasyfikacja PSL
 \documentclass[runningheads]{llncs}
 
 \usepackage[T1]{fontenc}
@@ -10,6 +9,7 @@
 \usepackage{multirow}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{hyperref}
 
 \lstset{
     basicstyle=\ttfamily\footnotesize,
@@ -50,25 +50,26 @@ Niniejsza praca koncentrowała się na klasyfikacji statycznych gestów alfabetu
 
 Głównym celem badania było eksperymentalne porównanie skuteczności różnych klasyfikatorów uczenia maszynowego w zadaniu klasyfikacji liter PJM. Praca miała odpowiedzieć na pytanie, które z metod najlepiej radziły sobie z tym zadaniem, oraz jaki wpływ miała augmentacja danych na wydajność poszczególnych modeli. Dodatkowo weryfikowano, czy proste klasyfikatory mogły konkurować z głębokimi sieciami neuronowymi przy wykorzystaniu odpowiednio zaprojektowanych cech.
 
+\subsection{Dostęp do kodu źródłowego}
+
+Kompletny kod źródłowy projektu, skrypty eksperymentalne oraz szczegółowe wyniki dostępne są w publicznym repozytorium GitHub:
+\url{https://github.com/wasilewskiJ/polish-sign-language}.
+Ze względu na ograniczenia rozmiaru repozytorium GitHub, surowe zdjęcia nie zostały dołączone do repozytorium.
+
+Bardziej szczegółowy przegląd wyników, zawierający rozszerzone metryki per-class oraz dodatkowe macierze pomyłek, dostępny jest pod adresem:
+\url{https://github.com/wasilewskiJ/polish-sign-language/blob/master/results\_cv/report\_cv\_comparison.md}.
+
 \section{Przegląd literatury}
 
 Rozpoznawanie języka migowego jest aktywnie badanym obszarem na styku wizji komputerowej i uczenia maszynowego \cite{lecun1998,krizhevsky2012}. Większość prac koncentruje się na amerykańskim języku migowym (ASL), podczas gdy badania nad polskim językiem migowym są stosunkowo nieliczne.
 
-Współczesne podejścia do rozpoznawania gestów można podzielić na dwie główne kategorie: metody oparte na bezpośredniej analizie obrazów oraz metody wykorzystujące punkty charakterystyczne (ang. \textit{hand landmarks}). Drugie podejście, popularyzowane przez bibliotekę MediaPipe, wykazuje wysoką efektywność przy znacznie mniejszej złożoności obliczeniowej.
+Współczesne podejścia do rozpoznawania gestów można podzielić na dwie główne kategorie: metody oparte na bezpośredniej analizie obrazów oraz metody wykorzystujące punkty charakterystyczne (ang. \textit{hand landmarks}).
 
-W kontekście klasyfikacji języków migowych, Ameen i Vadera \cite{ameen2017} zastosowali CNN do klasyfikacji gestów ASL z obrazów głębi i RGB. Oguntimilehin i Balogun \cite{oguntimilehin2024} przedstawiają system rozpoznawania Nigerian Sign Language w czasie rzeczywistym, osiągając dokładność testową powyżej 90\%. Kołodziej i in. \cite{kolodziej2022} opisują system wykorzystujący architekturę DenseNet do rozpoznawania 24 znaków alfabetu ASL, osiągając dokładność bliską 100\% dla użytkowników widzianych podczas treningu oraz 83-85\% dla nowych użytkowników.
+W kontekście klasyfikacji języków migowych, Ameen i Vadera \cite{ameen2017} zastosowali CNN do klasyfikacji gestów ASL z obrazów głębi i RGB, osiągając dokładność około 98-99\%. Oguntimilehin i Balogun \cite{oguntimilehin2024} przedstawili system rozpoznawania Nigerian Sign Language w czasie rzeczywistym wykorzystując architekturę CNN, osiągając dokładność testową około 93\%. Kołodziej i in. \cite{kolodziej2022} opisują system wykorzystujący architekturę DenseNet do rozpoznawania 24 znaków alfabetu ASL, osiągając dokładność bliską 100\% dla użytkowników widzianych podczas treningu oraz 83-85\% dla nowych użytkowników.
 
 W kontekście polskiego języka migowego, Piskozub i Strumiłło \cite{piskozub2023} proponują rękawicę z czujnikami do rozpoznawania liter alfabetu PJM. Filipowska i in. \cite{filipowska2024} prezentują system rozpoznawania gestów PJM na podstawie sygnałów EMG, osiągając wysoką dokładność klasyfikacji. Brak jest jednak otwartoźródłowych projektów wykorzystujących standardowe kamery RGB do klasyfikacji statycznych liter PJM.
 
-Podejścia oparte na punktach charakterystycznych dłoni oferują następujące zalety:
-\begin{itemize}
-    \item Niezmienniczość względem tła i warunków oświetleniowych
-    \item Znacząca redukcja wymiarowości danych
-    \item Możliwość przetwarzania w czasie rzeczywistym
-    \item Łatwiejsza interpretacja modelu
-\end{itemize}
-
-Augmentacja danych w kontekście rozpoznawania gestów jest standardową techniką zwiększającą rozmiar zbioru treningowego poprzez transformacje geometryczne. W literaturze wykazano, że augmentacja znacząco poprawia generalizację modeli, szczególnie przy ograniczonej liczbie próbek treningowych.
+Dla znaków dynamicznych, obserwuje się w literaturze częstszy wybór konwolucyjnych sieci neuronowych w zadaniu klasyfikacji. Natomiast podejścia oparte na punktach charakterystycznych dłoni, ze względu na ich znaczącą redukcję wymiarowości danych oraz łatwiejszą interpretację przez model, wydają się być rozsądnym wyborem dla znaków statycznych.
 
 \section{Zbiór danych}
 
@@ -76,7 +77,7 @@ Augmentacja danych w kontekście rozpoznawania gestów jest standardową technik
 
 Zbiór danych został ręcznie zebrany przy użyciu kamery internetowej i skryptu \texttt{collect\_dataset.py}. Proces zbierania obejmował:
 \begin{enumerate}
-    \item Nagrywanie obrazów RGB o rozdzielczości $224 \times 224$ pikseli
+    \item Zapisywanie obrazów RGB o rozdzielczości $224 \times 224$ pikseli
     \item Automatyczną detekcję dłoni za pomocą MediaPipe Hand Landmarker
     \item Odrzucenie próbek, w których nie wykryto dłoni
 \end{enumerate}
@@ -85,7 +86,7 @@ Zbiór danych został ręcznie zebrany przy użyciu kamery internetowej i skrypt
 
 \begin{itemize}
     \item \textbf{Liczba próbek}: 2549 (po filtracji MediaPipe)
-    \item \textbf{Liczba klas}: 22 litery PSL (A-Z bez J, Q, V, X)
+    \item \textbf{Liczba klas}: 22 litery PJM (A-Z bez J, Q, V, X)
     \item \textbf{Rozkład klas}: quasi-zbalansowany, 101-119 próbek na klasę
     \item \textbf{Format}: Obrazy RGB $224 \times 224 \times 3$
     \item \textbf{Pominięte próbki}: ~294 (~10.3\%), MediaPipe nie wykrył dłoni
@@ -168,6 +169,7 @@ Kluczowe jest, że zbiór walidacyjny zawsze składa się wyłącznie z oryginal
 
 Wszystkie eksperymenty przeprowadzono z użyciem 5-krotnej stratyfikowanej walidacji krzyżowej. Stratyfikacja zapewnia, że każda klasa ma proporcjonalną reprezentację w każdym foldzie, co jest szczególnie istotne przy małych zbiorach danych.
 
+
 Proces walidacji:
 \begin{enumerate}
     \item Podział danych na 5 foldów ze stratyfikacją
@@ -229,7 +231,22 @@ Trenowanie przez 50 epok z early stopping (patience=10).
 
 \subsubsection{CNN}
 
-Ze względu na błąd implementacyjny, CNN nie został włączony do porównania augmentacji. Model operował bezpośrednio na obrazach RGB.
+Prosta konwolucyjna sieć neuronowa operująca bezpośrednio na obrazach RGB o wymiarach $224 \times 224 \times 3$:
+\begin{lstlisting}
+model = Sequential([
+    Conv2D(32, (3,3), activation='relu', 
+           input_shape=(224,224,3)),
+    MaxPooling2D(2,2),
+    Conv2D(64, (3,3), activation='relu'),
+    MaxPooling2D(2,2),
+    Flatten(),
+    Dense(128, activation='relu'),
+    Dropout(0.5),
+    Dense(22, activation='softmax')
+])
+\end{lstlisting}
+
+Ze względu na błąd implementacyjny, CNN nie został włączony do porównania z augmentacją danych.
 
 \subsection{Metryki ewaluacji}
 
@@ -261,11 +278,14 @@ Tabela \ref{tab:results_baseline} przedstawia wyniki dla modeli trenowanych na o
 Random Forest & $0.9847 \pm 0.0038$ & $0.9848 \pm 0.0039$ & $0.9848 \pm 0.0039$ & $0.9847 \pm 0.0038$ \\
 LogisticRegression & $0.9823 \pm 0.0061$ & $0.9823 \pm 0.0062$ & $0.9823 \pm 0.0061$ & $0.9823 \pm 0.0061$ \\
 Keras MLP & $0.9839 \pm 0.0064$ & $0.9830 \pm 0.0072$ & $0.9839 \pm 0.0074$ & $0.9839 \pm 0.0065$ \\
+CNN & $0.1687 \pm 0.2209$ & $0.1685 \pm 0.2213$ & $0.1323 \pm 0.2365$ & $0.1323 \pm 0.2364$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Wszystkie trzy modele osiągnęły bardzo wysoką dokładność ($>98\%$), co potwierdza skuteczność reprezentacji opartej na landmarkach. Random Forest wykazał najwyższą średnią accuracy oraz najmniejsze odchylenie standardowe, co świadczy o jego stabilności.
+Wszystkie trzy modele oparte na landmarkach osiągnęły bardzo wysoką dokładność ($>98\%$), co potwierdza skuteczność reprezentacji opartej na punktach charakterystycznych dłoni. Random Forest wykazał najwyższą średnią accuracy oraz najmniejsze odchylenie standardowe, co świadczy o jego stabilności.
+
+Natomiast model CNN osiągnął znacząco słabsze wyniki ($\sim 17\%$ accuracy), co było prawdopodobnie spowodowane zbyt prostą architekturą sieci oraz niewystarczającą ilością danych treningowych. Wysokie odchylenie standardowe ($\sigma = 0.22$) wskazuje na dużą niestabilność wyników między foldami.
 
 \subsection{Eksperymenty z augmentacją}
 
@@ -331,15 +351,17 @@ T & 115 & 0.9833 & 0.9739 & 0.9778 \\
 \end{tabular}
 \end{table}
 
-Warto zauważyć, że proste klasyfikatory, dysponując wyekstrahowanymi punktami charakterystycznymi dłoni, radzą sobie doskonale. Wiele klas osiągnęło perfekcyjny wynik accuracy równy 1.0 (np. A, B, G, M, N, S, U, W, Y dla Logistic Regression).
+Warto zauważyć, że proste klasyfikatory, dysponując wyekstrahowanymi punktami charakterystycznymi dłoni, radzą sobie doskonale. Wiele klas osiągnęło perfekcyjny wynik accuracy równy 1.0 (np. A, S dla Logistic Regression). Natomiast litera O, posiadająca punkty charakterystyczne zbliżone do litery T, okazuje się być klasą trudną do nauczenia.
 
 \subsection{Macierze pomyłek}
 
 Rysunek \ref{fig:confusion} przedstawia zagregowaną macierz pomyłek dla Random Forest z augmentacją. Większość próbek została sklasyfikowana poprawnie (koncentracja na diagonali).
 
+\newpage
+
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.8\textwidth]{../results_cv/confusion_randomforest_(augmented)_aggregate.png}
+\includegraphics[width=0.6\textwidth]{../results_cv/confusion_randomforest_(augmented)_aggregate.png}
 \caption{Macierz pomyłek dla Random Forest z augmentacją (agregowana z 5 foldów)}
 \label{fig:confusion}
 \end{figure}
@@ -350,7 +372,7 @@ Analiza macierzy pomyłek ujawnia, że największe trudności sprawiają litery 
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.8\textwidth]{../results_cv/confusion_logisticregression_aggregate.png}
+\includegraphics[width=0.6\textwidth]{../results_cv/confusion_logisticregression_aggregate.png}
 \caption{Macierz pomyłek dla Logistic Regression. Szczególnie problematyczne pary to T-F oraz D-Z, których układy punktów charakterystycznych są do siebie bardzo podobne.}
 \label{fig:confusion_lr}
 \end{figure}
@@ -370,7 +392,11 @@ Dla litery T osiągnięto F1-score na poziomie 0.9184 (najniższy wynik wśród 
     
     \item \textbf{Proste a złożone modele}: Nie zaobserwowano znaczącej przewagi głębokich sieci neuronowych nad prostymi klasyfikatorami przy użyciu punktów charakterystycznych jako cech. Sugeruje to, że dla tego typu reprezentacji złożone modele nie są konieczne.
     
-    \item \textbf{Problematyczne pary liter}: Analiza błędów klasyfikacji ujawniła, że największe trudności sprawiają litery o podobnej konfiguracji punktów (T-F, D-Z), co wskazuje na ograniczenia wynikające z podobieństwa gestów.
+    \item \textbf{Problematyczne pary liter}: Analiza błędów klasyfikacji ujawniła, że największe trudności sprawiają litery o podobnej konfiguracji punktów (T-F, T-O, D-Z), co wskazuje na ograniczenia wynikające z podobieństwa gestów.
+    
+    \item \textbf{Perfekcyjna klasyfikacja dla niektórych klas}: Proste klasyfikatory operujące na punktach charakterystycznych osiągnęły accuracy równą 1.0 dla wybranych liter (np. A, S w Random Forest), co potwierdza skuteczność tej reprezentacji dla dobrze wyodrębnionych gestów.
+    
+    \item \textbf{Słabe wyniki CNN}: Prosty model CNN osiągnął znacznie gorsze wyniki ($\sim 17\%$ accuracy) w porównaniu do klasyfikatorów opartych na punktach charakterystycznych. Prawdopodobnie przydałaby się bardziej zaawansowana architektura sieci oraz znacznie większy zbiór danych treningowych. Niestety źle przeprowadzony eksperyment augmentacji nie pozwolił przetestować modelu CNN na większej ilości danych. Jest to potencjalny kierunek dalszych badań, w szczególności biorąc pod uwagę, że jest to popularny wybór w literaturze dla gestów dynamicznych. Istnieje również prawdopodobieństwo, że dla gestów statystycznych ten model jest nieopłacalny w porównaniu do klasyfikatorów, przy użyciu których można doskonale wytrenować proste modele, na niewielkim zbiorze danych.
 \end{enumerate}
 
 \subsection{Ograniczenia badania}
@@ -379,51 +405,88 @@ Dla litery T osiągnięto F1-score na poziomie 0.9184 (najniższy wynik wśród 
     \item \textbf{Statyczne gesty}: Badanie obejmowało tylko statyczne litery alfabetu, bez gestów dynamicznych.
     \item \textbf{Pojedynczy wykonawca}: Dane zebrano od jednej osoby, co mogło ograniczać generalizację.
     \item \textbf{Kontrolowane warunki}: Zdjęcia wykonano w podobnych warunkach oświetleniowych i z jednolitym tłem.
-    \item \textbf{CNN bez augmentacji}: Błąd implementacyjny uniemożliwił pełne porównanie CNN z innymi metodami.
+    \item \textbf{CNN bez augmentacji}: Błąd implementacyjny uniemożliwił pełne porównanie CNN z augmentacją danych.
+    \item \textbf{Mały zbiór danych}: Około 2500 próbek może być niewystarczające dla głębokich sieci neuronowych.
 \end{itemize}
 
 \subsection{Przyszłe kierunki badań}
 
 \begin{enumerate}
-    \item Rozszerzenie zbioru danych o więcej wykonawców i różnorodne warunki nagrywania
+    \item \textbf{Zaawansowane architektury CNN}: Wykorzystanie głębszych sieci (ResNet, EfficientNet) oraz transfer learning z pre-trenowanych modeli może znacząco poprawić wyniki dla obrazów RGB.
+    
+    \item \textbf{Większy zbiór danych}: Rozszerzenie zbioru o więcej wykonawców i różnorodne warunki nagrywania jest kluczowe dla poprawy generalizacji, oraz bardziej szczegółowych badań nad modelami CNN.
+    
     \item Implementacja rozpoznawania gestów dynamicznych (słowa, zdania)
-    \item Badanie transferu uczenia z wykorzystaniem pre-trenowanych modeli
     \item Optymalizacja dla zastosowań czasu rzeczywistego na urządzeniach mobilnych
-    \item Integracja z systemem tłumaczenia kontekstowego PSL
+    \item Integracja z systemem tłumaczenia kontekstowego PJM
 \end{enumerate}
 
 \section{Podsumowanie}
 
 W pracy przeprowadzono szczegółowe badanie eksperymentalne nad klasyfikacją liter polskiego języka migowego. Wykazano, że reprezentacja oparta na punktach charakterystycznych dłoni w połączeniu z klasycznymi metodami uczenia maszynowego (w szczególności Random Forest) pozwalała osiągnąć bardzo wysoką dokładność klasyfikacji ($98.87\%$). Augmentacja danych przyczyniła się do dalszej poprawy wyników, choć jej wpływ był stosunkowo niewielki ze względu na już wysoką bazową dokładność modeli.
 
-Rezultaty badań mogły stanowić podstawę dla praktycznych systemów wspomagających komunikację osób niesłyszących, przy czym konieczne było dalsze badanie w kierunku rozszerzenia na gesty dynamiczne oraz zwiększenia różnorodności zbioru danych.
+Rezultaty badań mogły stanowić podstawę dla praktycznych systemów wspomagających komunikację osób niesłyszących, przy czym konieczne byłoby dalsze badanie w kierunku rozszerzenia na gesty dynamiczne oraz zwiększenia różnorodności zbioru danych.
 
-\begin{thebibliography}{9}
+\begin{thebibliography}{99}
 
 \bibitem{lecun1998}
-LeCun, Y., Bottou, L., Bengio, Y., Haffner, P.: Gradient-based learning applied to document recognition. Proceedings of the IEEE 86(11), 2278-2324 (1998)
+Y.~LeCun, L.~Bottou, Y.~Bengio, P.~Haffner,
+\newblock ``Gradient-based learning applied to document recognition,''
+\newblock \emph{Proceedings of the IEEE}, vol.~86, no.~11, pp.~2278--2324, 1998.
 
 \bibitem{krizhevsky2012}
-Krizhevsky, A., Sutskever, I., Hinton, G.E.: ImageNet classification with deep convolutional neural networks. In: Advances in Neural Information Processing Systems 25 (NIPS 2012), pp. 1097-1105 (2012)
+A.~Krizhevsky, I.~Sutskever, G.~E. Hinton,
+\newblock ``ImageNet classification with deep convolutional neural networks,''
+\newblock in \emph{Advances in Neural Information Processing Systems 25 (NIPS 2012)}, pp.~1097--1105, 2012.
 
 \bibitem{kolodziej2022}
-Kołodziej, M., Szypuła, E., Majkowski, A., Rak, R.: Using deep learning to recognize the sign alphabet. Przegląd Elektrotechniczny 98(6) (2022). doi:10.15199/48.2022.06.06
+M.~Kołodziej, E.~Szypuła, A.~Majkowski, R.~Rak,
+\newblock ``Using deep learning to recognize the sign alphabet,''
+\newblock \emph{Przegląd Elektrotechniczny}, vol.~98, no.~6, 2022, doi:10.15199/48.2022.06.06.
 
 \bibitem{ameen2017}
-Ameen, S., Vadera, S.: A convolutional neural network to classify American Sign Language fingerspelling from depth and colour images. Expert Systems 34(3), e12197 (2017)
+S.~Ameen, S.~Vadera,
+\newblock ``A convolutional neural network to classify American Sign Language fingerspelling from depth and colour images,''
+\newblock \emph{Expert Systems}, vol.~34, no.~3, e12197, 2017.
 
 \bibitem{oguntimilehin2024}
-Oguntimilehin, A., Balogun, K.: Real-Time Sign Language Fingerspelling Recognition using Convolutional Neural Network. International Arab Journal of Information Technology 21(1), 158-165 (2024)
+A.~Oguntimilehin, K.~Balogun,
+\newblock ``Real-Time Sign Language Fingerspelling Recognition using Convolutional Neural Network,''
+\newblock \emph{International Arab Journal of Information Technology}, vol.~21, no.~1, pp.~158--165, 2024.
 
 \bibitem{piskozub2023}
-Piskozub, J., Strumiłło, P.: Data Glove for the Recognition of the Letters of the Polish Sign Language Alphabet. In: The Latest Developments and Challenges in Biomedical Engineering, Proc. 23rd Polish Conference on Biocybernetics and Biomedical Engineering (PCBBE 2023), Springer, pp. 351-362 (2023)
+J.~Piskozub, P.~Strumiłło,
+\newblock ``Data Glove for the Recognition of the Letters of the Polish Sign Language Alphabet,''
+\newblock in \emph{The Latest Developments and Challenges in Biomedical Engineering}, Proc. 23rd Polish Conference on Biocybernetics and Biomedical Engineering (PCBBE 2023), Springer, 2023, pp.~351--362.
 
 \bibitem{filipowska2024}
-Filipowska, A., Filipowski, W., Mieszczanin, J., Bryzik, K., Henkel, M., Skwarek, E., Raif, P., Sieciński, S., Doniec, R.J., Mika, B., et al.: Pattern Recognition in the Processing of Electromyographic Signals for Selected Expressions of Polish Sign Language. Sensors 24(18), 6710 (2024)
-
-\bibitem{mediapipe}
-Lugaresi, C., Tang, J., Nash, H., et al.: MediaPipe: A Framework for Building Perception Pipelines. arXiv preprint arXiv:1906.08172 (2019)
+A.~Filipowska, W.~Filipowski, J.~Mieszczanin, K.~Bryzik, M.~Henkel, E.~Skwarek, P.~Raif, S.~Sieciński, R.~J. Doniec, B.~Mika \emph{et al.},
+\newblock ``Pattern Recognition in the Processing of Electromyographic Signals for Selected Expressions of Polish Sign Language,''
+\newblock \emph{Sensors}, vol.~24, no.~18, 6710, 2024.
 
 \end{thebibliography}
+
+\newpage
+
+\section*{Użycie narzędzi AI}
+
+W trakcie realizacji projektu wykorzystano narzędzia AI w ograniczonym zakresie, co przedstawiono w Tabeli~\ref{tab:ai-usage}.
+
+\begin{table}[h]
+\centering
+\caption{Użycie narzędzi AI w projekcie}
+\label{tab:ai-usage}
+\begin{tabular}{|p{3cm}|p{9cm}|}
+\hline
+\textbf{Narzędzie AI} & \textbf{Zastosowanie} \\
+\hline
+ChatGPT & Stworzenie skryptu \texttt{collect\_dataset.py} według zadanej specyfikacji \\
+\hline
+ChatGPT & Pomoc przy pisaniu skryptu generującego raport \texttt{results\_cv/report\_cv\_comparison.md} \\
+\hline
+ChatGPT & Wyjaśnianie konceptów i pomoc teoretyczna w zakresie uczenia maszynowego \\
+\hline
+\end{tabular}
+\end{table}
 
 \end{document}
